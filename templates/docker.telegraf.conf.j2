@@ -8,7 +8,7 @@
   ## Set to true to collect Swarm metrics(desired_replicas, running_replicas)
   ## Note: configure this in one of the manager nodes in a Swarm cluster.
   ## configuring in multiple Swarm managers results in duplication of metrics.
-  gather_services = {{ docker_telegraf_gather_services }}
+  gather_services = {{ docker_telegraf_gather_services | lower }}
 
   ## Containers to include and exclude. Collect all if empty. Globs accepted.
   container_name_include = {{ docker_telegraf_container_name_include | to_json }}
@@ -24,10 +24,10 @@
 
   ## Whether to report for each container per-device blkio (8:0, 8:1...) and
   ## network (eth0, eth1, ...) stats or not
-  perdevice = {{ docker_telegraf_perdevice }}
+  perdevice = {{ docker_telegraf_perdevice | lower }}
 
   ## Whether to report for each container total blkio and network stats or not
-  total = {{ docker_telegraf_total }}
+  total = {{ docker_telegraf_total | lower }}
 
   ## docker labels to include and exclude as tags.  Globs accepted.
   ## Note that an empty array for both will include all labels as tags
