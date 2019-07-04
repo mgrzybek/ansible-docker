@@ -20,12 +20,13 @@
 #        baseurl: "{{ docker_repo_rpm_url }}"
 #        gpgkey: "{{ docker_repo_key }}"
 
+- set_fact:
+    use_firewalld: false
+    configure_telegraf: false
+
 - name: Check firewalld
   shell: systemctl is-active firewalld.service 2>/dev/null || echo ko && exit 0
   register: firewalld_service
-
-- set_fact:
-    use_firewalld: false
 
 - set_fact:
     use_firewalld: true
@@ -50,3 +51,13 @@
     - name: Get crm node name
       command: crm_node -n
       register: crm_node_name
+
+- name: Check telegraf
+  register: telegraf_service
+  shell: systemctl is-active telegraf 2>/dev/null || echo ko && exit 0
+
+- when:
+    - telegraf_service.stdout.find('ko') < 0
+    - docker_config_telegraf | lower == 'true'
+  set_fact:
+    configure_telegraf: true

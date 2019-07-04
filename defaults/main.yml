@@ -35,3 +35,23 @@ docker_no_proxy:
 docker_daemon_configuration: {}
 
 docker_post_config_restart_on_change: true
+
+# Telegraf monitoring
+docker_telegraf_services_path: /etc/telegraf/telegraf.d
+
+docker_telegraf_gather_services: false
+
+docker_telegraf_container_name_include: []
+docker_telegraf_container_name_exclude: []
+
+docker_telegraf_container_state_include: []
+docker_telegraf_container_state_exclude: []
+
+docker_telegraf_timeout: "5s"
+docker_telegraf_perdevice: true
+docker_telegraf_total: false
+
+docker_telegraf_docker_label_include: []
+docker_telegraf_docker_label_exclude: []
+
+docker_telegraf_tag_env: []

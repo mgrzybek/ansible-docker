@@ -71,3 +71,9 @@
   when:
     - consul_service.stdout.find('active') > -1
     - docker_config_consul == true
+
+- name: Telegraf configuration
+  when:
+    - configure_telegraf == true
+  notify: restart telegraf
+  template: src=docker.telegraf.conf.j2 dest={{ docker_telegraf_services_path }}/docker.conf
