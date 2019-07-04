@@ -1,0 +1,37 @@
+---
+
+docker_package_state: present
+
+docker_cluster_aware: false
+docker_cluster_resource_name:
+
+docker_config_consul: false
+
+docker_consul_services_path: /etc/consul.d
+docker_consul:
+    - service:
+        name: "docker"
+        tags:
+            - "docker"
+            - "traefik.enable=false"
+        checks:
+            - args:
+                - "systemctl"
+                - "status"
+                - "docker"
+              interval: "15s"
+
+docker_network_options:
+docker_storage_options:
+docker_mount_flags:
+docker_iptables_enabled: true
+docker_log_driver: journald
+docker_log_options: []
+
+docker_http_proxy:
+docker_https_proxy: "{{ docker_http_proxy }}"
+docker_no_proxy:
+
+docker_daemon_configuration: {}
+
+docker_post_config_restart_on_change: true

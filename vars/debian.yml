@@ -1,0 +1,12 @@
+---
+
+docker_repo_apt_url: 
+docker_repo_key_url: 
+
+docker_distro_packages:
+  - docker.io
+  - python-docker
+
+docker_sysconfig: /etc/default
+
+docker_cluster_command: crm

@@ -1,0 +1,12 @@
+---
+
+docker_repo_rpm_url: 
+docker_repo_key_url: 
+
+docker_distro_packages:
+  - docker
+  - python-docker-py
+
+docker_sysconfig: /etc/sysconfig
+
+docker_cluster_command: pcs

@@ -1,0 +1,52 @@
+---
+
+#- name: APT-based
+#  when: ansible_os_family | lower == 'debian'
+#  block:
+#    - name: Installation de la cle de depot
+#      shell: curl {{ docker_repo_key_url }} | apt-key add -
+#
+#    - name: Create apt repo
+#      get_url: url={{ docker_repo_apt_url }} dest=/etc/apt/sources.list.d/docker.list
+
+
+#- name: RPM-based
+#  when: ansible_os_family | lower == 'redhat'
+#  block:
+#    - name: Create yum repo
+#      yum_repository:
+#        name: docker
+#        description: docker repo
+#        baseurl: "{{ docker_repo_rpm_url }}"
+#        gpgkey: "{{ docker_repo_key }}"
+
+- name: Check firewalld
+  shell: systemctl is-active firewalld.service 2>/dev/null || echo ko && exit 0
+  register: firewalld_service
+
+- set_fact:
+    use_firewalld: false
+
+- set_fact:
+    use_firewalld: true
+  when: firewalld_service.stdout.find('active') > -1
+
+- name: Check if consul is running
+  shell: systemctl is-active consul 2>/dev/null || echo ko && exit 0
+  register: consul_service
+
+- name: Create consul_bin variable
+  when: docker_config_consul == true
+  block:
+    - name: Récupération du path de la commande consul
+      shell: systemctl show -p ExecStart consul|tr ' ' '\n'|awk -F= '/path=/ {print $2}'
+      register: consul_bin_path
+
+    - set_fact: consul_bin="{{ consul_bin_path.stdout }}"
+
+- name: Cluster-aware facts
+  when: docker_cluster_aware == true
+  block:
+    - name: Get crm node name
+      command: crm_node -n
+      register: crm_node_name

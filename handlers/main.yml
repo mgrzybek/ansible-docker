@@ -1,0 +1,26 @@
+---
+
+- name: restart docker service
+  service: name=docker state=restarted enabled=yes
+  when:
+    - docker_post_config_restart_on_change == true
+#    - docker_cluster_aware == false
+
+- name: restart docker resource
+  #run_once: true
+  when:
+    - docker_post_config_restart_on_change == true
+    - docker_cluster_aware == true
+  command: crm_resource --resource {{ docker_cluster_resource_name }} --restart
+
+- name: reload systemd
+  command: systemctl daemon-reload
+
+- name: reload firewalld
+  command: firewall-cmd --reload
+
+- name: reload consul
+  command: "{{ consul_bin }} reload"
+
+- name: restart telegraf
+  service: name=telegraf state=restarted

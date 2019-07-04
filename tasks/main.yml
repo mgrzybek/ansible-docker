@@ -1,0 +1,24 @@
+---
+# tasks file for docker
+
+- name: Variables by OS
+  include_vars: "{{ item }}"
+  tags: always
+  with_first_found:
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+
+- import_tasks: docker_pre_install.yml
+  tags:
+    - docker-pre-install
+
+- import_tasks: docker_install.yml
+  tags:
+    - docker-install
+
+- import_tasks: docker_post_install.yml
+  tags:
+    - docker-post-install

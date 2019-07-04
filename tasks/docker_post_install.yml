@@ -1,0 +1,73 @@
+---
+
+- name: Install docker configuration (redhat)
+  template: src={{ item.source }}.j2 dest={{ item.destination }}
+  register: docker_conf
+  notify:
+    - restart docker service
+    - restart docker resource
+  when: ansible_os_family | lower == 'redhat'
+  with_items:
+    - source: docker.sysconfig.redhat
+      destination: "{{ docker_sysconfig }}/docker"
+    - source: docker-storage
+      destination: "{{ docker_sysconfig }}/docker-storage"
+    - source: docker-storage-setup
+      destination: "{{ docker_sysconfig }}/docker-storage-setup"
+    - source: docker-network
+      destination: "{{ docker_sysconfig }}/docker-network"
+    - source: daemon.json
+      destination: /etc/docker/daemon.json
+
+- name: Install docker configuration (debian)
+  when: ansible_os_family | lower == 'debian'
+  block:
+    - name: Creates configuration files
+      template: src={{ item.source }}.j2 dest={{ item.destination }}
+      register: docker_conf
+      notify:
+        - restart docker service
+        - restart docker resource
+      with_items:
+        - source: docker.debian.service
+          destination: "/etc/systemd/system/docker.service"
+        - source: daemon.json
+          destination: /etc/docker/daemon.json
+        - source: docker.default.debian
+          destination: "{{ docker_sysconfig }}/docker"
+
+- name: Creates systemd service files
+  when: docker_http_proxy != None or docker_https_proxy != None or docker_no_proxy != None
+  block:
+    - name: Creates /etc/systemd/system/docker.service.d
+      file: path=/etc/systemd/system/docker.service.d state=directory
+
+    - name: Creates http proxy configuration file
+      template: src=http-options.conf.j2 dest=/etc/systemd/system/docker.service.d/http-options.conf
+      register: docker_proxy
+      notify:
+        - reload systemd
+        - restart docker service
+        - restart docker resource
+
+- name: Removes proxy configuration
+  file: path=/etc/systemd/systemd/docker.service.d/http-options.conf state=absent
+  notify:
+    - reload systemd
+    - restart docker service
+    - restart docker resource
+  when:
+    - docker_http_proxy == None
+    - docker_https_proxy == None
+    - docker_no_proxy == None
+
+- name: Reloads systemd
+  command: systemctl daemon-reload
+
+- name: Consul monitoring
+  template: src=service.consul.json.j2 dest={{ docker_consul_services_path }}/{{ item.service.name }}.json
+  with_items: "{{ docker_consul }}"
+  notify: reload consul
+  when:
+    - consul_service.stdout.find('active') > -1
+    - docker_config_consul == true

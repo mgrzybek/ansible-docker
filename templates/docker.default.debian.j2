@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+# Use DOCKER_OPTS to modify the daemon startup options.
+DOCKER_LOG_OPTS="--log-driver={{ docker_log_driver }} {% if docker_log_options | length > 0 %}--log-opt {% endif %}{{ docker_log_options | join('--log-opt ') }}"
+DOCKER_NET_OPTS="{{ docker_network_options }}"
+DOCKER_STORAGE_OPTS="{{ docker_storage_options }}"
+DOCKER_MOUNT_OPTS="{{ docker_mount_flags }}"
+DOCKER_FW_OPTS="--iptables={{ docker_iptables_enabled }}"
+DOCKER_OPTS="{{ docker_options|default('') }}"

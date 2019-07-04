@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+[Service]
+Environment=DOCKER_OPTS="{{ docker_options|default('') }} --iptables={{ docker_iptables_enabled }}"
+{% if docker_mount_flags is defined and docker_mount_flags != "" %}
+MountFlags={{ docker_mount_flags }}
+{% endif %}
