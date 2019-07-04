@@ -23,6 +23,7 @@
 - set_fact:
     use_firewalld: false
     configure_telegraf: false
+    configure_telegraf_user: false
 
 - name: Check firewalld
   shell: systemctl is-active firewalld.service 2>/dev/null || echo ko && exit 0
@@ -59,5 +60,16 @@
 - when:
     - telegraf_service.stdout.find('ko') < 0
     - docker_config_telegraf | lower == 'true'
-  set_fact:
-    configure_telegraf: true
+  block:
+    - name: Set local fact
+      set_fact:
+        configure_telegraf: true
+
+    - name: Get user running telegraf service
+      shell: ps aux | awk '/telegraf/ {print $1}' | head -n1
+      register: telegraf_user_result
+
+    - name: set local fact
+      when: telegraf_user_result.stdout.find('root') < 0
+      set_fact:
+         configure_telegraf_user: true

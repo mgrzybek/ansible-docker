@@ -75,5 +75,11 @@
 - name: Telegraf configuration
   when:
     - configure_telegraf == true
-  notify: restart telegraf
-  template: src=docker.telegraf.conf.j2 dest={{ docker_telegraf_services_path }}/docker.conf
+  block:
+    - name: Configuration file
+      notify: restart telegraf
+      template: src=docker.telegraf.conf.j2 dest={{ docker_telegraf_services_path }}/docker.conf
+
+    - name: User permissions
+      when: configure_telegraf_user == true
+      user: name=telegraf append=yes groups=docker

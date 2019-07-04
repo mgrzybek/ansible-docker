@@ -6,6 +6,7 @@ docker_cluster_aware: false
 docker_cluster_resource_name:
 
 docker_config_consul: false
+docker_config_telegraf: false
 
 docker_consul_services_path: /etc/consul.d
 docker_consul:
