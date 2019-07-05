@@ -61,15 +61,15 @@
     - telegraf_service.stdout.find('ko') < 0
     - docker_config_telegraf | lower == 'true'
   block:
-    - name: Set local fact
+    - name: Set local fact (configure_telegraf to true)
       set_fact:
         configure_telegraf: true
 
     - name: Get user running telegraf service
-      shell: ps aux | awk '/telegraf/ {print $1}' | head -n1
+      shell: systemctl show telegraf | awk -F= '/^User=/ {print $2}'
       register: telegraf_user_result
 
-    - name: set local fact
+    - name: Set local fact (configure_telegraf_user to true) 
       when: telegraf_user_result.stdout.find('root') < 0
       set_fact:
          configure_telegraf_user: true

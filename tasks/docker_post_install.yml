@@ -81,5 +81,6 @@
       template: src=docker.telegraf.conf.j2 dest={{ docker_telegraf_services_path }}/docker.conf
 
     - name: User permissions
+      notify: restart telegraf
       when: configure_telegraf_user == true
       user: name=telegraf append=yes groups=docker
