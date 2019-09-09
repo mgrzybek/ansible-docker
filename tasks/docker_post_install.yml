@@ -84,3 +84,22 @@
       notify: restart telegraf
       when: configure_telegraf_user == true
       user: name=telegraf append=yes groups=docker
+
+- name: Login to custom registries
+  when: docker_registry_credentials | length > 0
+  block:
+    - name: Import certificates
+      with_items: "{{ docker_registry_credentials }}"
+      copy:
+          content: "{{ item.cert }}"
+          dest: "/etc/docker/{{ item.url | urlsplit('hostname') }}/ca.crt"
+      notify:
+        - restart docker service
+        - restart docker resource
+
+    - name: Restart the service
+      meta: flush_handlers
+
+    - name: Login against the registry
+      with_items: "{{ docker_registry_credentials }}"
+      command: docker login {{ item.url | urlsplit('hostname') }}

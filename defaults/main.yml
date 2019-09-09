@@ -56,3 +56,10 @@ docker_telegraf_docker_label_include: []
 docker_telegraf_docker_label_exclude: []
 
 docker_telegraf_tag_env: []
+
+docker_registry_credentials: []
+#docker_registry_credentials:
+#    - url:
+#      cert:
+#      login:
+#      password:
