@@ -42,6 +42,21 @@ Install docker, set HTTP proxies and monitor the daemon using Consul:
          # Default: journald
          docker_log_driver: json-file
 
+Install docker, login against a private registry:
+
+    - hosts: servers
+      roles:
+         - ansible-docker
+      vars:
+         docker_registry_credentials:
+            - url: https://my-registry.local
+              login: foo
+              password: bar
+              cert: |
+    -----BEGIN CERTIFICATE-----
+    […]
+    -----END CERTIFICATE-----
+
 License
 -------
 
