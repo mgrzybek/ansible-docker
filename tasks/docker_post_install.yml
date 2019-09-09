@@ -103,7 +103,7 @@
     - name: Login against the registry
       with_items: "{{ docker_registry_credentials }}"
       shell: >
-          echo {{ item.password }} \
-              | docker login \
-                  --username {{ item.username }} \
-                  {{ item.url | urlsplit('hostname') }}
+        docker login \
+            --username {{ item.username }} \
+            --password {{ item.password }} \
+            {{ item.url | urlsplit('hostname') }}
