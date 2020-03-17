@@ -3,14 +3,14 @@
 - name: restart docker service
   service: name=docker state=restarted enabled=yes
   when:
-    - docker_post_config_restart_on_change == true
-#    - docker_cluster_aware == false
+    - docker_post_config_restart_on_change | lower == 'true'
+#    - docker_cluster_aware | lower == 'false'
 
 - name: restart docker resource
   #run_once: true
   when:
-    - docker_post_config_restart_on_change == true
-    - docker_cluster_aware == true
+    - docker_post_config_restart_on_change | lower == 'true'
+    - docker_cluster_aware | lower == 'true'
   command: crm_resource --resource {{ docker_cluster_resource_name }} --restart
 
 - name: reload systemd

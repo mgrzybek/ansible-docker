@@ -40,7 +40,7 @@
   register: consul_service
 
 - name: Create consul_bin variable
-  when: docker_config_consul == true
+  when: docker_config_consul | lower == 'true'
   block:
     - name: Récupération du path de la commande consul
       shell: systemctl show -p ExecStart consul|tr ' ' '\n'|awk -F= '/path=/ {print $2}'
@@ -50,7 +50,7 @@
       set_fact: consul_bin="{{ consul_bin_path.stdout }}"
 
 - name: Cluster-aware facts
-  when: docker_cluster_aware == true
+  when: docker_cluster_aware | lower == 'true'
   block:
     - name: Get crm node name
       command: crm_node -n
