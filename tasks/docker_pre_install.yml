@@ -73,7 +73,7 @@
       shell: systemctl show telegraf | awk -F= '/^User=/ {print $2}'
       register: telegraf_user_result
 
-    - name: Set local fact (configure_telegraf_user to true) 
+    - name: Set local fact (configure_telegraf_user to true)
       when: telegraf_user_result.stdout.find('root') < 0
       set_fact:
          configure_telegraf_user: true
