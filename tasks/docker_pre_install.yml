@@ -20,7 +20,8 @@
 #        baseurl: "{{ docker_repo_rpm_url }}"
 #        gpgkey: "{{ docker_repo_key }}"
 
-- set_fact:
+- name: Set local facts
+  set_fact:
     use_firewalld: false
     configure_telegraf: false
     configure_telegraf_user: false
@@ -29,7 +30,8 @@
   shell: systemctl is-active firewalld.service 2>/dev/null || echo ko && exit 0
   register: firewalld_service
 
-- set_fact:
+- name: Set local facts
+  set_fact:
     use_firewalld: true
   when: firewalld_service.stdout.find('active') > -1
 
@@ -44,7 +46,8 @@
       shell: systemctl show -p ExecStart consul|tr ' ' '\n'|awk -F= '/path=/ {print $2}'
       register: consul_bin_path
 
-    - set_fact: consul_bin="{{ consul_bin_path.stdout }}"
+    - name: Set local facts
+      set_fact: consul_bin="{{ consul_bin_path.stdout }}"
 
 - name: Cluster-aware facts
   when: docker_cluster_aware == true
@@ -57,7 +60,8 @@
   register: telegraf_service
   shell: systemctl is-active telegraf 2>/dev/null || echo ko && exit 0
 
-- when:
+- name: Set local fact
+  when:
     - telegraf_service.stdout.find('ko') < 0
     - docker_config_telegraf | lower == 'true'
   block:
