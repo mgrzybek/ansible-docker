@@ -70,11 +70,11 @@
   notify: reload consul
   when:
     - consul_service.stdout.find('active') > -1
-    - docker_config_consul == true
+    - docker_config_consul | lower == 'true'
 
 - name: Telegraf configuration
   when:
-    - configure_telegraf == true
+    - configure_telegraf | lower == 'true'
   block:
     - name: Configuration file
       notify: restart telegraf
@@ -82,7 +82,7 @@
 
     - name: User permissions
       notify: restart telegraf
-      when: configure_telegraf_user == true
+      when: configure_telegraf_user | lower == 'true'
       user: name=telegraf append=yes groups=docker
 
 - name: Login to custom registries
