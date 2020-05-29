@@ -1,6 +1,7 @@
 ---
 
 docker_package_state: present
+cache_timeout: 600
 
 docker_cluster_aware: false
 docker_cluster_resource_name:
