@@ -1,6 +1,6 @@
 ---
 
-- name: Install docker configuration (redhat)
+- name: Post-Install | Install docker configuration (redhat)
   template: src={{ item.source }}.j2 dest={{ item.destination }}
   register: docker_conf
   notify:
@@ -19,10 +19,10 @@
     - source: daemon.json
       destination: /etc/docker/daemon.json
 
-- name: Install docker configuration (debian)
+- name: Post-Install | Install docker configuration (debian)
   when: ansible_os_family | lower == 'debian'
   block:
-    - name: Creates configuration files
+    - name: Post-Install | Creates configuration files
       template: src={{ item.source }}.j2 dest={{ item.destination }}
       register: docker_conf
       notify:
@@ -36,13 +36,13 @@
         - source: docker.default.debian
           destination: "{{ docker_sysconfig }}/docker"
 
-- name: Creates systemd service files
+- name: Post-Install | Creates systemd service files
   when: docker_http_proxy != None or docker_https_proxy != None or docker_no_proxy != None
   block:
-    - name: Creates /etc/systemd/system/docker.service.d
+    - name: Post-Install | Creates /etc/systemd/system/docker.service.d
       file: path=/etc/systemd/system/docker.service.d state=directory
 
-    - name: Creates http proxy configuration file
+    - name: Post-Install | Creates http proxy configuration file
       template: src=http-options.conf.j2 dest=/etc/systemd/system/docker.service.d/http-options.conf
       register: docker_proxy
       notify:
@@ -50,7 +50,7 @@
         - restart docker service
         - restart docker resource
 
-- name: Removes proxy configuration
+- name: Post-Install | Removes proxy configuration
   file: path=/etc/systemd/systemd/docker.service.d/http-options.conf state=absent
   notify:
     - reload systemd
@@ -61,10 +61,10 @@
     - docker_https_proxy == None
     - docker_no_proxy == None
 
-- name: Reloads systemd
+- name: Post-Install | Reloads systemd
   command: systemctl daemon-reload
 
-- name: Consul monitoring
+- name: Post-Install | Consul monitoring
   template: src=service.consul.json.j2 dest={{ docker_consul_services_path }}/{{ item.service.name }}.json
   with_items: "{{ docker_consul }}"
   notify: reload consul
@@ -72,23 +72,23 @@
     - consul_service.stdout.find('active') > -1
     - docker_config_consul | lower == 'true'
 
-- name: Telegraf configuration
+- name: Post-Install | Telegraf configuration
   when:
     - configure_telegraf | lower == 'true'
   block:
-    - name: Configuration file
+    - name: Post-Install | Configuration file
       notify: restart telegraf
       template: src=docker.telegraf.conf.j2 dest={{ docker_telegraf_services_path }}/docker.conf
 
-    - name: User permissions
+    - name: Post-Install | User permissions
       notify: restart telegraf
       when: configure_telegraf_user | lower == 'true'
       user: name=telegraf append=yes groups=docker
 
-- name: Login to custom registries
+- name: Post-Install | Login to custom registries
   when: docker_registry_credentials | length > 0
   block:
-    - name: Import certificates
+    - name: Post-Install | Import certificates
       with_items: "{{ docker_registry_credentials }}"
       copy:
           content: "{{ item.cert }}"
@@ -97,10 +97,10 @@
         - restart docker service
         - restart docker resource
 
-    - name: Restart the service
+    - name: Post-Install | Restart the service
       meta: flush_handlers
 
-    - name: Login against the registry
+    - name: Post-Install | Login against the registry
       with_items: "{{ docker_registry_credentials }}"
       shell: >
         docker login \

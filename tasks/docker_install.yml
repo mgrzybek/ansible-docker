@@ -1,6 +1,6 @@
 ---
 
-- name: Install docker packages
+- name: Install | Install docker packages
   package:
     name: "{{ docker_distro_packages }}"
     state: "{{ docker_package_state }}"

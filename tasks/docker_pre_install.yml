@@ -1,79 +1,79 @@
 ---
 
-#- name: APT-based
+#- name: Pre-Install | APT-based
 #  when: ansible_os_family | lower == 'debian'
 #  block:
-#    - name: Installation de la cle de depot
+#    - name: Pre-Install | Installation de la cle de depot
 #      shell: curl {{ docker_repo_key_url }} | apt-key add -
 #
-#    - name: Create apt repo
+#    - name: Pre-Install | Create apt repo
 #      get_url: url={{ docker_repo_apt_url }} dest=/etc/apt/sources.list.d/docker.list
 
 
-#- name: RPM-based
+#- name: Pre-Install | RPM-based
 #  when: ansible_os_family | lower == 'redhat'
 #  block:
-#    - name: Create yum repo
+#    - name: Pre-Install | Create yum repo
 #      yum_repository:
 #        name: docker
 #        description: docker repo
 #        baseurl: "{{ docker_repo_rpm_url }}"
 #        gpgkey: "{{ docker_repo_key }}"
 
-- name: Set local facts
+- name: Pre-Install | Set local facts
   set_fact:
     use_firewalld: false
     configure_telegraf: false
     configure_telegraf_user: false
 
-- name: Check firewalld
+- name: Pre-Install | Check firewalld
   shell: systemctl is-active firewalld.service 2>/dev/null || echo ko && exit 0
   register: firewalld_service
 
-- name: Set local facts
+- name: Pre-Install | Set local facts
   set_fact:
     use_firewalld: true
   when: firewalld_service.stdout.find('active') > -1
 
-- name: Check if consul is running
+- name: Pre-Install | Check if consul is running
   shell: systemctl is-active consul 2>/dev/null || echo ko && exit 0
   register: consul_service
 
-- name: Create consul_bin variable
+- name: Pre-Install | Create consul_bin variable
   when: docker_config_consul | lower == 'true'
   block:
-    - name: Récupération du path de la commande consul
+    - name: Pre-Install | Récupération du path de la commande consul
       shell: systemctl show -p ExecStart consul|tr ' ' '\n'|awk -F= '/path=/ {print $2}'
       register: consul_bin_path
 
-    - name: Set local facts
+    - name: Pre-Install | Set local facts
       set_fact: consul_bin="{{ consul_bin_path.stdout }}"
 
-- name: Cluster-aware facts
+- name: Pre-Install | Cluster-aware facts
   when: docker_cluster_aware | lower == 'true'
   block:
-    - name: Get crm node name
+    - name: Pre-Install | Get crm node name
       command: crm_node -n
       register: crm_node_name
 
-- name: Check telegraf
+- name: Pre-Install | Check telegraf
   register: telegraf_service
   shell: systemctl is-active telegraf 2>/dev/null || echo ko && exit 0
 
-- name: Set local fact
+- name: Pre-Install | Set local fact
   when:
     - telegraf_service.stdout.find('ko') < 0
     - docker_config_telegraf | lower == 'true'
   block:
-    - name: Set local fact (configure_telegraf to true)
+    - name: Pre-Install | Set local fact (configure_telegraf to true)
       set_fact:
         configure_telegraf: true
 
-    - name: Get user running telegraf service
+    - name: Pre-Install | Get user running telegraf service
       shell: systemctl show telegraf | awk -F= '/^User=/ {print $2}'
       register: telegraf_user_result
 
-    - name: Set local fact (configure_telegraf_user to true)
+    - name: Pre-Install | Set local fact (configure_telegraf_user to true)
       when: telegraf_user_result.stdout.find('root') < 0
       set_fact:
          configure_telegraf_user: true
