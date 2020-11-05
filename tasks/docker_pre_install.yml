@@ -39,16 +39,6 @@
   shell: systemctl is-active consul 2>/dev/null || echo ko && exit 0
   register: consul_service
 
-- name: Pre-Install | Create consul_bin variable
-  when: docker_config_consul | lower == 'true'
-  block:
-    - name: Pre-Install | Récupération du path de la commande consul
-      shell: systemctl show -p ExecStart consul|tr ' ' '\n'|awk -F= '/path=/ {print $2}'
-      register: consul_bin_path
-
-    - name: Pre-Install | Set local facts
-      set_fact: consul_bin="{{ consul_bin_path.stdout }}"
-
 - name: Pre-Install | Cluster-aware facts
   when: docker_cluster_aware | lower == 'true'
   block:

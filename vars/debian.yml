@@ -5,7 +5,7 @@ docker_repo_key_url:
 
 docker_distro_packages:
   - docker.io
-  - python-docker
+  - python3-docker
 
 docker_sysconfig: /etc/default
 
